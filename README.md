@@ -1,11 +1,11 @@
-Relative Root Mean Squared Errors (Counting Task)
+Counting Task - Relative Root Mean Squared Errors (* denotes best score in column)
 | Month    | Reticulated Giraffe | Grevys Zebra | Sea Turtle   | Plains Zebra | Masai Giraffe | Fluke Whale  | Average      | 
 | -------- | ------------------- | ------------ | ------------ | ------------ | ------------- | ------------ | ------------ |
 | Original | 0.63                | 0.64         | 0.42         | 0.91         | 0.51          | 0.26         | 0.56         |
 | Iter. 2  | 0.35                | 0.57         | 0.10         | ***0.81*** * | 0.51          | 0.10         | 0.41         |
 | Iter. 3  | ***0.26*** *        | ***0.49*** * | ***0.06*** * | 0.84         | ***0.45*** *  | ***0.06*** * | ***0.36*** * |
 
-ROC AUC (Classification Task)
+Classification Task - ROC AUC (* denotes best score in column)
 | Month    | Reticulated Giraffe | Grevys Zebra | Sea Turtle   | Plains Zebra | Masai Giraffe | Fluke Whale  | Average       | 
 | -------- | ------------------- | ------------ | ------------ | ------------ | ------------- | ------------ | ------------- |
 | Original | 0.92                | ***0.96*** * | ***0.99*** * | ***0.88*** * | 0.91          | 0.99         | 0.94          |
