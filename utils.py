@@ -4,6 +4,12 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
+import matplotlib.pyplot as plt
+
+REDUCED_CLASSES = ['giraffe_reticulated', 'zebra_grevys',
+                   'turtle_sea', 'zebra_plains',
+                   'giraffe_masai', 'whale_fluke']
+
 # training loop over batches; forward and backward propagation
 def train_batch_loop(model, optimizer, train_dataloader, device, ratio: int = 1):
     mse = nn.MSELoss()
@@ -123,3 +129,60 @@ def train(model, train_dataloader, val_dataloader, save_path: str = None,
       epoch_relrmses[epoch - 1, :] = relrmses
 
     return epoch_roc_aucs, epoch_relrmses
+
+def epoch_graphs(aurocs, mses):
+  # relrmses
+  for i in range(6):
+    plt.plot(np.arange(1,101), 
+             mses[:,i], 
+             label=REDUCED_CLASSES[i])
+  plt.legend()
+  plt.title('RelRMSE vs Epoch by Species')
+  plt.xlabel('Epoch')
+  plt.ylabel('Relative RMSE')
+  plt.show()
+
+  # avg relrmse
+  relrmses = np.mean(mses, axis=1)
+  plt.plot(np.arange(1,101), relrmses)
+  plt.title('Averge RelRMSE vs Epoch')
+  plt.xlabel('Epoch')
+  plt.ylabel('Relative RMSE')
+  plt.show()
+
+  # roc aucs
+  for i in range(6):
+    plt.plot(np.arange(1, 101),
+             aurocs[:, i], 
+             label=REDUCED_CLASSES[i])
+  plt.legend()
+  plt.title('ROC AUC vs Epoch by Species')
+  plt.xlabel('Epoch')
+  plt.ylabel('ROC AUC')
+  plt.show()
+
+  # avg roc aucs
+  roc_aucs = np.mean(aurocs, axis=1)
+  plt.plot(np.arange(1, 101), roc_aucs)
+  plt.title('Averge ROC AUC vs Epoch')
+  plt.xlabel('Epoch')
+  plt.ylabel('ROC AUC')
+  plt.show()
+
+  return
+
+def display_results(relrmses, aurocs):
+  formatter = 'RelRMSE = {}  &  AUROC = {}  <--  {}'
+  for idx, label in enumerate(REDUCED_CLASSES):
+     print(formatter.format(
+         str(round(relrmses[idx], 2)),
+         str(round(aurocs[idx], 2)),
+         label
+     ))
+  avg_relrmse = np.mean(relrmses)
+  avg_auroc = np.mean(aurocs)
+  print(formatter.format(
+      str(round(avg_relrmse, 2)),
+      str(round(avg_auroc, 2)),
+      'average'
+  ))
