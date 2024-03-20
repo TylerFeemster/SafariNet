@@ -19,16 +19,16 @@ After Iteration 2, I was still a bit disappointed in the counting performance fo
 Counting Task - Relative Root Mean Squared Errors
 | Model        | Reticulated Giraffe | Grevys Zebra | Sea Turtle  | Plains Zebra | Masai Giraffe | Fluke Whale  | Average   | 
 | ------------ | ------------------- | ------------ | ----------- | ------------ | ------------- | ------------ | --------- |
-| Original     | 0.63                | 0.64         | 0.42        | 0.91         | 0.51          | 0.26         | 0.56      |
-| Iteration 2  | 0.35                | 0.57         | 0.10        | 0.81 *       | 0.51          | 0.10         | 0.41      |
-| Iteration 3  | 0.26 *              | 0.49 *       | 0.06 *      | 0.84         | 0.45 *        | 0.06 *       | 0.36 *    |
+| Original     | 0.35                | 0.55         | 0.09        | 1.02         | 0.45          | 0.10         | 0.43      |
+| Iteration 2  | 0.34                | 0.52         | 0.08        | 0.84         | 0.45          | 0.10         | 0.39      |
+| Iteration 3  | 0.27 *              | 0.46 *       | 0.05 *      | 0.73 *       | 0.40 *        | 0.09 *       | 0.33 *    |
 
 Classification Task - ROC AUC
 | Model        | Reticulated Giraffe | Grevys Zebra | Sea Turtle  | Plains Zebra | Masai Giraffe | Fluke Whale  | Average   | 
 | ------------ | ------------------- | ------------ | ----------- | ------------ | ------------- | ------------ | --------- |
-| Original     | 0.92                | 0.96 *       | 0.99 *      | 0.88 *       | 0.91          | 0.99         | 0.94      |
-| Iteration 2  | 0.95 *              | 0.95         | 0.98        | 0.87         | 0.86          | 0.99         | 0.93      |
-| Iteration 3  | 0.93                | 0.96 *       | 0.99 *      | 0.88 *       | 0.92 *        | 1.00 *       | 0.95 *    |
+| Original     | 0.93                | 0.95         | 0.99 *      | 0.84         | 0.87 *        | 0.99         | 0.93      |
+| Iteration 2  | 0.94 *              | 0.96 *       | 0.99 *      | 0.87 *       | 0.86          | 1.00 *       | 0.94 *    |
+| Iteration 3  | 0.93                | 0.96 *       | 0.99 *      | 0.85         | 0.87 *        | 0.99         | 0.93      |
 
 <sub>* denotes best score in column</sub>
 
