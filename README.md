@@ -14,6 +14,10 @@ Here's my guess. Once the Squeeze-and-Excitation block was introduced, the soft-
 
 After Iteration 2, I was still a bit disappointed in the counting performance for species appearing in large groups, i.e. the giraffes and zebras. So, I normalized the counts by the standard deviation across each class on the training data. This allowed the computed loss to be less biased between the classes. I also weighted the counting loss twice as much as the classification loss since the classification loss was generally ~2x as large as the counting loss. When the predictions were claculated, I multiplied by the same standard deviations to make the scores between the models fair. Across scores, Iteration 3 performed the best much more frequently, and when it didn't have the best score, it was a close second.
 
+## Model
+
+Note that the loss function is defined to be the sum of two loss functions: `MSELoss()` and `BCEWithLogitsLoss()`.  This is inspired by the loss function used in the paper by Song and Qui. These are natural choices for (1) the regression task and (2) the classification task. The use of `BCEWithLogitsLoss()` (instead of `nn.CrossEntropyLoss()`) means that we use the sigmoid function (instead of the softmax function) as the activation function for the last layer of the classification branch. This is better suited to our dataset since there are many images with more than one type of animal present. Softmax would force the class probabilities to sum to 1, but our dataset does not have mutually exclusive labels.
+
 ## Scoring
 
 Counting Task - Relative Root Mean Squared Errors
