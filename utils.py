@@ -10,6 +10,16 @@ REDUCED_CLASSES = ['giraffe_reticulated', 'zebra_grevys',
                    'turtle_sea', 'zebra_plains',
                    'giraffe_masai', 'whale_fluke']
 
+def _get_stdevs():
+    num_nontest = 4623
+    num_animals = np.zeros((num_nontest, 6))
+    trainval = open('wild/ImageSets/Main/trainval.txt', 'r')
+    filenames = trainval.readlines()
+    for idx, file in enumerate(filenames):
+        num_animals[idx, :] = np.load('wild/count_annotations/' +
+                                      file[:-1] + '.npy')
+    return np.std(num_animals, axis=0)
+
 # training loop over batches; forward and backward propagation
 def train_batch_loop(model, optimizer, train_dataloader, device, ratio: int = 1):
     mse = nn.MSELoss()
@@ -97,9 +107,14 @@ def eval_batch_loop(model, validation_dataloader, device, animal_stdevs: np.arra
     return class_roc_auc, class_relrmse
 
 def train(model, train_dataloader, val_dataloader, save_path: str = None,
-          num_epochs: int = 100, ratio: int = 1, animal_stdevs: np.array = None):
+          num_epochs: int = 100, ratio: int = 1, stdevs: bool = False):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
+
+    if stdevs:
+      animal_stdevs = _get_stdevs()
+    else:
+      animal_stdevs = None
 
     epoch_roc_aucs = np.zeros((num_epochs, 6))
     epoch_relrmses = np.zeros((num_epochs, 6))

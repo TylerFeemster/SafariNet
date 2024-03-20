@@ -7,17 +7,19 @@ import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
 
+from utils import _get_stdevs
+
 class ClassifyCountDataset(Dataset):
-    def __init__(self, dataset_type, img_size, animal_stdevs: np.array = None):
+    def __init__(self, dataset_type, img_size, stdevs: bool = False):
 
         self.img_path = 'wild/JPEGImages/'
         self.classify_path = 'wild/class_annotations/'
         self.count_path = 'wild/count_annotations/'
 
-        if animal_stdevs is None:
-            self.animal_stdevs = np.ones(6)
+        if stdevs:
+            self.animal_stdevs = _get_stdevs()
         else:
-            self.animal_stdevs = animal_stdevs
+            self.animal_stdevs = np.ones(6)
 
         # means and sds of images from ImageNet
         train_mean, train_sd = [0.4914, 0.4822, 0.4465], [0.247, 0.243, 0.261]
