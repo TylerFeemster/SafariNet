@@ -1,54 +1,88 @@
+# SafariNet: Iterative Model Building for Multiclass Regression on Image Data
+
 ## Introduction
 
-This project was based on a final project I completed at Princeton for the class [SML 301: Data Intelligence: Modern Data Science Methods](https://csml.princeton.edu/undergraduate/sml-301-data-intelligence-modern-data-science-methods) with Professor Daisy Huang.
+This project was based on a final project I completed at Princeton for the class [SML 301: Data Intelligence: Modern Data Science Methods](https://csml.princeton.edu/undergraduate/sml-301-data-intelligence-modern-data-science-methods) with Professor Daisy Huang. The dataset is available [here](https://cthulhu.dyn.wildme.io/public/datasets/) (**Note**: This is a download link).
 
-The dataset is an image dataset showing animals across different species. Interestingly, many images contain multiple animals from the same species, and some images contain animals from multiple species. The goal of the project is to count the number of animals per species. In other words, we must perform a classification and regression task simulataneously. To make the problem feasible for ordinary hardware and time scales, we limit ourselves to six species. The dataset is available [here](https://cthulhu.dyn.wildme.io/public/datasets/) (**Note**: This is a download link).
+The dataset consists of images with animals from various species. Our goal is to count the number of animals per species in a given image, a multiclass regression problem. To make our task feasible given ordinary hardware and time scales, we limit ourselves to six species: Reticulated Giraffe, Masai Giraffe, Grevys Zebra, Plains Zebra, Sea Turtle, and Fluke Whale. However, even with a small number of species, a working model must be able to differentiate between two species of giraffes and two species of zebras while also being general enough to differentiate between two distinct marine animals.
 
-For the original project, we implemented a miniature version of the VGG16 model (i.e., not 16 layers), which performed relatively well on its own. 
+## Models
 
-After the course had ended, I was reading about the now ubiquitous Squeeze-and-Excitation block from the famous paper of [Hu et al](https://doi.org/10.1109/CVPR.2018.00745). The Squeeze-and-Excitation block allows a multi-channel input to rescale its channels based on their respective importance. This "importance" is judged from a point of view that considers all channels simultaneously. Instead of every high-level feature making it to the model head as-is, the Squeeze-and-Excitation block can emphasize certain features beforehand that it believes will be most beneficial to the model's performance. This can be viewed as an "attention mechanism", wherein the sigmoid activation performs soft-gating on the channels. This addition culminated in "Iteration 2".
+Scores for each of these models can be found below.
 
-From the scores alone, I was happy to see a few things. For one, the original model was already great at classifying sea turtles and fluke whales with nearly perfect accuracy. However, it was still not great at counting these animals, even though they virtually always appear alone in the images. In iteration 2, the relative root mean squred errors for these two classes dropped dramatically without compromising the performance of the classification task.
+**Model 1** 
 
-Here's my guess. Once the Squeeze-and-Excitation block was introduced, the soft-gating gave the model the opportunity to classify animals earlier, allowing distinct regression schemes and count distributions to be learned in the model's head.
+For the original project, I followed the approach of [Song and Qiu](https://dl.acm.org/doi/abs/10.1145/3191442.3191459) to classify and count the animals simultaneously. A working model must count the animals by species, but in order to do this well, it must first learn to differentiate between the animals. Instead of relying on the model to learn this automatically during training, we add a classification penalty to help the model with this intermediate learning task.
 
-After Iteration 2, I was still a bit disappointed in the counting performance for species appearing in large groups, i.e. the giraffes and zebras. So, I normalized the counts by the standard deviation across each class on the training data. This allowed the computed loss to be less biased between the classes. I also weighted the counting loss twice as much as the classification loss since the classification loss was generally ~2x as large as the counting loss. When the predictions were claculated, I multiplied by the same standard deviations to make the scores between the models fair. Across scores, Iteration 3 performed the best much more frequently, and when it didn't have the best score, it was a close second.
+ The model's first few layers resemble the beginning layers of [VGG16](https://arxiv.org/pdf/1409.1556.pdf), a state-of-the-art (and very big) model for image classification. The model's head has two interwoven streams, one predicting the species counts and the other predicting the probability of each species being in the image. 
 
-## Extra
+**Model 2**
 
-In my final project for "SML 301 - Data Intelligence: Modern Data Science Methods", I built a model to simultaneously count and classify selected animals from the *Wild* dataset.
+Model 2 is an iteration of the first and came many months later. The goal was simply to understand the Squeeze-and-Excitation block of [Hu et al](https://doi.org/10.1109/CVPR.2018.00745) by implementing it in a CNN I had already created.
 
-Diving into the literature long after the course had ended, I discovered a popular technique for enhancing the performance of CNNs. This is the "Squeeze-and-Excitation" Block introduced by [Hu et al.](
-https://doi.org/10.48550/arXiv.1709.01507
-). As we move through the layers of a CNN, the number of channels grow and deeper features are extracted. When we pass an example into the model, every channel will feed its score into the head of the model to be transformed into an output. The problem occurs when we realize all of these channels are being calculated independently before being passed into the model.
+A Squeeze-and-Excitation block is not itself a model. Rather, it's a small block allowing a multi-channel input to rescale its channels based on their respective importances. In the context of image data, these channels are features that a model has extracted from an image. Vanilla CNNs pass all this information, in parallel, through the convolutional layers. But for any given image, there are certain features that are more or less important. A Squeeze-and-Excitation block can emphasize features that are more useful while masking the rest. This is a basic but powerful example of an "attention mechanism" in deep learning.
 
-The way Hu et al. solve this problem is by adding a relatively tiny block between two CNN layers. The block *squeezes* the channels by projecting them into much fewer channels (often around a sixteenth of the original number).
+I added the S-E block before the last convolutional layer so that it could adjust the extracted features before being processed by the feed-forward head. The performance of the model on the counting task improved by about 10%, but this could be due to an increase in model parameters.
 
-## Model
+**Model 3**
 
-Note that the loss function is defined to be the sum of two loss functions: `MSELoss()` and `BCEWithLogitsLoss()`.  This is inspired by the loss function used in the paper by Song and Qui. These are natural choices for (1) the regression task and (2) the classification task. The use of `BCEWithLogitsLoss()` (instead of `nn.CrossEntropyLoss()`) means that we use the sigmoid function (instead of the softmax function) as the activation function for the last layer of the classification branch. This is better suited to our dataset since there are many images with more than one type of animal present. Softmax would force the class probabilities to sum to 1, but our dataset does not have mutually exclusive labels.
+After Model 2, I was still a bit disappointed in the counting performance for species appearing in large groups, i.e. the giraffes and zebras. So, I normalized the counts by the standard deviation across each class on the training data. This allowed the computed loss to be less biased between classes. I also weighted the counting loss ten times more than the classification loss during training since this is our main task. (**Note**: When the predictions were calculated, I multiplied by the same standard deviations to make the scores between the models fair.)
 
-## Scoring
+## Results
 
-Counting Task - Relative Root Mean Squared Errors
-| Model        | Reticulated Giraffe | Grevys Zebra | Sea Turtle  | Plains Zebra | Masai Giraffe | Fluke Whale  | Average   | 
-| ------------ | ------------------- | ------------ | ----------- | ------------ | ------------- | ------------ | --------- |
-| Original     | 0.35                | 0.55         | 0.09        | 1.02         | 0.45          | 0.10         | 0.43      |
-| Iteration 2  | 0.34                | 0.52         | 0.08        | 0.84         | 0.45          | 0.10         | 0.39      |
-| Iteration 3  | 0.27 *              | 0.46 *       | 0.05 *      | 0.73 *       | 0.40 *        | 0.09 *       | 0.33 *    |
+The classification task never improved much between models, but the main counting task did. Model 2 was at least as good as Model 1 at counting any given class, and on average, there was a 10% slash in relative RMSE. 
 
-Classification Task - ROC AUC
-| Model        | Reticulated Giraffe | Grevys Zebra | Sea Turtle  | Plains Zebra | Masai Giraffe | Fluke Whale  | Average   | 
-| ------------ | ------------------- | ------------ | ----------- | ------------ | ------------- | ------------ | --------- |
-| Original     | 0.93                | 0.95         | 0.99 *      | 0.84         | 0.87 *        | 0.99         | 0.93      |
-| Iteration 2  | 0.94 *              | 0.96 *       | 0.99 *      | 0.87 *       | 0.86          | 1.00 *       | 0.94 *    |
-| Iteration 3  | 0.93                | 0.96 *       | 0.99 *      | 0.85         | 0.87 *        | 0.99         | 0.93      |
+Model 3 improved on Model 2 in every class, chopping the error down by another 15% on average.
+
+*Counting Task - Relative Root MSE*
+| Model         | Reticulated Giraffe | Grevys Zebra | Sea Turtle  | Plains Zebra | Masai Giraffe | Fluke Whale  | Average   | 
+| ------------- | ------------------- | ------------ | ----------- | ------------ | ------------- | ------------ | --------- |
+| Model 1       | 0.35                | 0.55         | 0.09        | 1.02         | 0.45          | 0.10         | 0.43      |
+| Model 2       | 0.34                | 0.52         | 0.08        | 0.84         | 0.45          | 0.10         | 0.39      |
+| Model 3       | 0.27 *              | 0.46 *       | 0.05 *      | 0.73 *       | 0.40 *        | 0.09 *       | 0.33 *    |
+
+*Classification Task - ROC AUC*
+| Model         | Reticulated Giraffe | Grevys Zebra | Sea Turtle  | Plains Zebra | Masai Giraffe | Fluke Whale  | Average   | 
+| ------------- | ------------------- | ------------ | ----------- | ------------ | ------------- | ------------ | --------- |
+| Model 1       | 0.93                | 0.95         | 0.99 *      | 0.84         | 0.87 *        | 0.99         | 0.93      |
+| Model 2       | 0.94 *              | 0.96 *       | 0.99 *      | 0.87 *       | 0.86          | 1.00 *       | 0.94 *    |
+| Model 3       | 0.93                | 0.96 *       | 0.99 *      | 0.85         | 0.87 *        | 0.99         | 0.93      |
 
 <sub>* denotes best score in column</sub>
 
+## Files
+
+**intro.ipynb**
+
+This is a Jupyter Notebook performing basic Exploratory Data Analysis.
+
+**model{1,2,3}.ipynb**
+
+*model1.ipynb*, *model2.ipynb*, and *model3.ipynb* are the notebooks that train and evaluate each model.
+
+**preprocessing.py**
+
+Each image in the dataset comes with an XML file giving species information and bounding boxes. Running this script creates two folders, count_annotations and class_annotations, and extracts count and class data from the XML files. For example, an image with 2 Masai Giraffes will produce the array $[0, 0, 0, 0, 2, 0]$ for the count_annotations folder and $[0, 0, 0, 0, 1, 0]$ for the class_annotations folder.
+
+**dataset.py**
+
+This contains our custom PyTorch Dataset module. It contains a boolean input `stdevs`, allowing us to specify if we want to normalize count data by standard deviations. This is done for Model 3 but not for Models 1 or 2.
+
+**model.py**
+
+This contains our custom PyTorch model. `add_se` allows us to add the Squeeze-and-Excitation block. This is done for Models 2 and 3 but not for Model 1.
+
+**utils.py**
+
+This contains our training and evalutation functions along with other miscellaneous functions. The evaluation functions allow us to specify if we should denormalize outputs for fair scoring, and the training function allows us to reweight our losses. Both are utilized for Model 3.
+
+
 ## References
+
 [[1]](https://dl.acm.org/doi/abs/10.1145/3191442.3191459) Zichen Song and Qiang Qiu. 2018. Learn to Classify and Count: A Unified Framework for Object Classification and Counting. In Proceedings of the 2018 International Conference on Image and Graphics Processing (ICIGP '18). Association for Computing Machinery, New York, NY, USA, 110–114.
 
 [[2]](https://ieeexplore.ieee.org/document/8354227) J. Parham, C. Stewart, J. Crall, D. Rubenstein, J. Holmberg and T. Berger-Wolf, "An Animal Detection Pipeline for Identification," 2018 IEEE Winter Conference on Applications of Computer Vision (WACV), Lake Tahoe, NV, USA, 2018, pp. 1075-1083
 
-[[3]](https://doi.org/10.1109/CVPR.2018.00745) J. Hu, L. Shen and G. Sun, "Squeeze-and-Excitation Networks," 2018 IEEE/CVF Conference on Computer Vision and Pattern Recognition, Salt Lake City, UT, USA, 2018, pp. 7132-7141
+[[3]](https://arxiv.org/pdf/1409.1556.pdf) Karen Simonyan and Andrew Zisserman. 2015. Very Deep Convolutional Networks for Large-Scale Image Recognition.
+
+[[4]](https://doi.org/10.1109/CVPR.2018.00745) J. Hu, L. Shen and G. Sun, "Squeeze-and-Excitation Networks," 2018 IEEE/CVF Conference on Computer Vision and Pattern Recognition, Salt Lake City, UT, USA, 2018, pp. 7132-7141
