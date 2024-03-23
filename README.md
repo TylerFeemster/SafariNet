@@ -30,22 +30,24 @@ After Model 2, I was still a bit disappointed in the counting performance for sp
 
 ## Results
 
-The classification task never improved much between models, but the main counting task did. Model 2 was at least as good as Model 1 at counting any given class, and on average, there was a 10% slash in relative RMSE. 
+The classification task didn't improve between models, but our main counting task did. Model 2 was better than Model 1 at counting (except for the Masai Giraffe), and on average, there was a 7% slash in relative RMSE. 
 
 Model 3 improved on Model 2 in every class, chopping the error down by another 15% on average.
+
+Model 3 is significantly better at counting any species than Model 1; on average, there was an over 20% improvement in error.
 
 *Counting Task - Relative Root MSE*
 | Model         | Reticulated Giraffe | Grevys Zebra | Sea Turtle  | Plains Zebra | Masai Giraffe | Fluke Whale  | Average   | 
 | ------------- | ------------------- | ------------ | ----------- | ------------ | ------------- | ------------ | --------- |
-| Model 1       | 0.35                | 0.55         | 0.09        | 1.02         | 0.45          | 0.10         | 0.43      |
+| Model 1       | 0.37                | 0.58         | 0.09        | 0.91         | 0.42          | 0.16         | 0.42      |
 | Model 2       | 0.34                | 0.52         | 0.08        | 0.84         | 0.45          | 0.10         | 0.39      |
 | Model 3       | 0.27 *              | 0.46 *       | 0.05 *      | 0.73 *       | 0.40 *        | 0.09 *       | 0.33 *    |
 
 *Classification Task - ROC AUC*
 | Model         | Reticulated Giraffe | Grevys Zebra | Sea Turtle  | Plains Zebra | Masai Giraffe | Fluke Whale  | Average   | 
 | ------------- | ------------------- | ------------ | ----------- | ------------ | ------------- | ------------ | --------- |
-| Model 1       | 0.93                | 0.95         | 0.99 *      | 0.84         | 0.87 *        | 0.99         | 0.93      |
-| Model 2       | 0.94 *              | 0.96 *       | 0.99 *      | 0.87 *       | 0.86          | 1.00 *       | 0.94 *    |
+| Model 1       | 0.93                | 0.95         | 0.99 *      | 0.90 *       | 0.87 *        | 0.99         | 0.94 *    |
+| Model 2       | 0.94 *              | 0.96 *       | 0.99 *      | 0.87         | 0.86          | 1.00 *       | 0.94 *    |
 | Model 3       | 0.93                | 0.96 *       | 0.99 *      | 0.85         | 0.87 *        | 0.99         | 0.93      |
 
 <sub>* denotes best score in column</sub>
