@@ -20,6 +20,19 @@ def _get_stdevs():
                                       file[:-1] + '.npy')
     return np.std(num_animals, axis=0)
 
+
+'''
+The loss function is defined to be the sum of two loss functions: MSELoss() and 
+BCEWithLogitsLoss(). This is inspired by the loss function used in the paper by 
+Song and Qui. These are natural choices for (1) the regression task and (2) the 
+classification task. The use of BCEWithLogitsLoss() (instead of nn.CrossEntropyLoss()) 
+means that we use the sigmoid function (instead of the softmax function) as the 
+activation function for the last layer of the classification branch. This is better 
+suited to our dataset since there are many images with more than one type of animal; 
+softmax would force the class probabilities to sum to 1, but our dataset does not 
+have mutually exclusive labels.
+'''
+
 # training loop over batches; forward and backward propagation
 def train_batch_loop(model, optimizer, train_dataloader, device, ratio: int = 1):
     mse = nn.MSELoss()
