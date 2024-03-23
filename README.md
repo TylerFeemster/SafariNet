@@ -14,6 +14,16 @@ Here's my guess. Once the Squeeze-and-Excitation block was introduced, the soft-
 
 After Iteration 2, I was still a bit disappointed in the counting performance for species appearing in large groups, i.e. the giraffes and zebras. So, I normalized the counts by the standard deviation across each class on the training data. This allowed the computed loss to be less biased between the classes. I also weighted the counting loss twice as much as the classification loss since the classification loss was generally ~2x as large as the counting loss. When the predictions were claculated, I multiplied by the same standard deviations to make the scores between the models fair. Across scores, Iteration 3 performed the best much more frequently, and when it didn't have the best score, it was a close second.
 
+## Extra
+
+In my final project for "SML 301 - Data Intelligence: Modern Data Science Methods", I built a model to simultaneously count and classify selected animals from the *Wild* dataset.
+
+Diving into the literature long after the course had ended, I discovered a popular technique for enhancing the performance of CNNs. This is the "Squeeze-and-Excitation" Block introduced by [Hu et al.](
+https://doi.org/10.48550/arXiv.1709.01507
+). As we move through the layers of a CNN, the number of channels grow and deeper features are extracted. When we pass an example into the model, every channel will feed its score into the head of the model to be transformed into an output. The problem occurs when we realize all of these channels are being calculated independently before being passed into the model.
+
+The way Hu et al. solve this problem is by adding a relatively tiny block between two CNN layers. The block *squeezes* the channels by projecting them into much fewer channels (often around a sixteenth of the original number).
+
 ## Model
 
 Note that the loss function is defined to be the sum of two loss functions: `MSELoss()` and `BCEWithLogitsLoss()`.  This is inspired by the loss function used in the paper by Song and Qui. These are natural choices for (1) the regression task and (2) the classification task. The use of `BCEWithLogitsLoss()` (instead of `nn.CrossEntropyLoss()`) means that we use the sigmoid function (instead of the softmax function) as the activation function for the last layer of the classification branch. This is better suited to our dataset since there are many images with more than one type of animal present. Softmax would force the class probabilities to sum to 1, but our dataset does not have mutually exclusive labels.
