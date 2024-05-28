@@ -4,6 +4,8 @@
 
 This project was based on a final project I completed at Princeton for the class [SML 301: Data Intelligence: Modern Data Science Methods](https://csml.princeton.edu/undergraduate/sml-301-data-intelligence-modern-data-science-methods) with Professor Daisy Huang. The dataset is available [here](https://cthulhu.dyn.wildme.io/public/datasets/) (**Note**: This is a download link).
 
+In this repository, I showcase three models. The first was the original model I submitted as my final project, and the next two are iterative improvements I made after the class ended. See the **Models** section for model details.
+
 The dataset consists of images with animals from various species. Our goal is to count the number of animals per species in a given image, a multiclass regression problem. To make our task feasible given ordinary hardware and time scales, we limit ourselves to six species: Reticulated Giraffe, Masai Giraffe, Grevys Zebra, Plains Zebra, Sea Turtle, and Fluke Whale. However, even with a small number of species, a working model must be able to differentiate between two species of giraffes and two species of zebras while also being general enough to differentiate between two distinct marine animals.
 
 ## Models
